@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skripsi_finals/homescreen.dart';
 import 'package:skripsi_finals/pages/login.dart';
 import 'package:go_router/go_router.dart';
 
@@ -30,7 +31,8 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 61, 34, 109)),
+        scaffoldBackgroundColor: Color.fromARGB(255, 47, 21, 90),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 186, 186, 187)),
         useMaterial3: true,
       ),
       home: const LoginPage(title: 'Steamworks'),
@@ -124,11 +126,12 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+    
   }
   GoRouter router = GoRouter(
     routes: [
-      GoRoute(path: '/login',
-      builder: (context, state) => const LoginPage(title: 'Steamworks',)
+      GoRoute(path: '/homescreen',
+      builder: (context, state) => const HomeScreen(title: 'Steamworks',)
       ),
     ],
     );

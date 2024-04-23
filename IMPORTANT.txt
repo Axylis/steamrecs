@@ -1,0 +1,2 @@
+Steam Web API Key: 1FBCBFE4BD5ADC88ECE844CC2C9B965C
+https://steamcommunity.com/dev/apikey

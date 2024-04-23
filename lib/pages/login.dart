@@ -1,43 +1,7 @@
-import 'package:flutter_login/flutter_login.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Steamworks App',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const LoginPage(title: 'Steamworks',),
-    );
-  }
-}
+import 'package:skripsi_finals/homescreen.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key, required this.title});
@@ -58,18 +22,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,10 +36,10 @@ class _LoginPageState extends State<LoginPage> {
         // TRY THIS: Try changing the color here to a specific color (to
         // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
         // change color while the other colors stay the same.
-        backgroundColor: Color.fromARGB(255, 15, 26, 65),
+        backgroundColor: Color.fromARGB(255, 23, 42, 110),
         // Here we take the value from the LoginPage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title, style: TextStyle(color: Color.fromARGB(255, 241, 241, 241)),),
+        title: Text(widget.title, style: const TextStyle(color: Color.fromARGB(255, 241, 241, 241)),),
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
@@ -109,23 +61,19 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+              'Log In Through STEAM',
+              style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 221, 221, 221)),
             ),
             TextButton(
-              onPressed:() => context.go('/login'),
-              style: TextButton.styleFrom(backgroundColor: Color.fromARGB(255, 27, 27, 27)), child: const Text('Login Page')
+              onPressed:() {
+                Navigator.push(context, 
+                MaterialPageRoute(builder: (context) => const HomeScreen(title: "Steamworks")),
+                );
+              },
+              style: TextButton.styleFrom(backgroundColor: const Color.fromARGB(255, 27, 27, 27)), child: const Text('Login Page')
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
