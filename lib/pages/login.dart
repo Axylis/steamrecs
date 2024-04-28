@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart';
 import 'package:skripsi_finals/homescreen.dart';
+import 'package:skripsi_finals/pages/steamLogin.dart';
+import 'package:steam_login/steam_login.dart';
+import 'dart:io';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key, required this.title});
@@ -22,6 +27,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+
+  String steamID = "";
 
   @override
   Widget build(BuildContext context) {
@@ -65,13 +72,17 @@ class _LoginPageState extends State<LoginPage> {
               style: TextStyle(fontSize: 20, color: Color.fromARGB(255, 221, 221, 221)),
             ),
             TextButton(
-              onPressed:() {
-                Navigator.push(context, 
-                MaterialPageRoute(builder: (context) => const HomeScreen(title: "Steamworks")),
+              onPressed:() async {
+                final result = await Navigator.push(context, 
+                MaterialPageRoute(builder: (context) => SteamLogin()),
                 );
+                setState(() {
+                  steamID = result;
+                });
               },
               style: TextButton.styleFrom(backgroundColor: const Color.fromARGB(255, 27, 27, 27)), child: const Text('Login Page')
             ),
+            Text('SteamID: $steamID'),
           ],
         ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
@@ -79,3 +90,4 @@ class _LoginPageState extends State<LoginPage> {
   }
   
 }
+

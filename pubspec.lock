@@ -160,6 +160,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_webview_plugin:
+    dependency: "direct main"
+    description:
+      name: flutter_webview_plugin
+      sha256: ec410b10822b06432e11f9680b319609d6f34bcdabb31fcc4990ac8a2aaf9ff0
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0"
   font_awesome_flutter:
     dependency: transitive
     description:
@@ -188,10 +196,10 @@ packages:
     dependency: "direct main"
     description:
       name: http
-      sha256: "761a297c042deedc1ffbb156d6e2af13886bb305c2a343a4d972504cd67dd938"
+      sha256: "5895291c13fa8a3bd82e76d5627f69e0d85ca6a30dcac95c4ea19a5d555879c2"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.1"
+    version: "0.13.6"
   http_parser:
     dependency: transitive
     description:
@@ -365,6 +373,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.1"
+  steam_login:
+    dependency: "direct main"
+    description:
+      name: steam_login
+      sha256: "145d29099151b8a30f5eb1c115be29706ee462051ca5b6fa4b20c21a239c17cc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   stream_channel:
     dependency: transitive
     description:
