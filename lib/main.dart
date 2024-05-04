@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 186, 186, 187)),
         useMaterial3: true,
       ),
-      home: const LoginPage(title: 'Steamworks'),
+      home: const LoginPage(),
     );
   }
 }
@@ -128,11 +128,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     
   }
-  GoRouter router = GoRouter(
-    routes: [
-      GoRoute(path: '/homescreen',
-      builder: (context, state) => const HomeScreen(title: 'Steamworks',)
-      ),
-    ],
-    );
 }

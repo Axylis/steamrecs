@@ -6,7 +6,7 @@ import 'package:skripsi_finals/pages/profile.dart';
 import 'package:skripsi_finals/pages/recommender.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.title});
+  const HomeScreen({super.key, required this.title, required this.steamID, required this.index});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -18,6 +18,8 @@ class HomeScreen extends StatefulWidget {
   // always marked "final".
 
   final String title;
+  final String steamID;
+  final int index;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -25,12 +27,22 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  late String SteamID64 = widget.steamID;
 
-  final List<Widget> _pages = [
-    HomeScreenPage(),
-    RecommenderPage(),
-    ProfilePage(),
+  late final List<Widget> _pages = [
+    HomeScreenPage(steamID: SteamID64,),
+    RecommenderPage(steamID: SteamID64,),
+    ProfilePage(steamID: SteamID64,),
   ];
+
+  @override
+  void initState() {
+    setState(() {
+      _currentIndex = widget.index;
+    });
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

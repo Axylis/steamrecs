@@ -3,13 +3,13 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart';
 import 'package:skripsi_finals/homescreen.dart';
-import 'package:skripsi_finals/pages/steamLogin.dart';
+import 'package:skripsi_finals/pages/steam_login.dart';
 import 'package:steam_login/steam_login.dart';
 import 'dart:io';
 
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key, required this.title});
+  const LoginPage({super.key,});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -20,7 +20,6 @@ class LoginPage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final String title;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -46,7 +45,6 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: Color.fromARGB(255, 23, 42, 110),
         // Here we take the value from the LoginPage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title, style: const TextStyle(color: Color.fromARGB(255, 241, 241, 241)),),
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
@@ -79,6 +77,9 @@ class _LoginPageState extends State<LoginPage> {
                 setState(() {
                   steamID = result;
                 });
+                Navigator.push(context, 
+                MaterialPageRoute(builder: (context) => HomeScreen(title: 'Steamworks', steamID: steamID, index: 0,)),
+                );
               },
               style: TextButton.styleFrom(backgroundColor: const Color.fromARGB(255, 27, 27, 27)), child: const Text('Login Page')
             ),

@@ -12,6 +12,7 @@ class SteamLogin extends StatelessWidget {
       if (openId.mode == 'id_res') {
         await _webView.close();
         Navigator.of(context).pop(openId.validate());
+        
       }
     });
 
