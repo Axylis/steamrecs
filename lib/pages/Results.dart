@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -21,36 +20,21 @@ class ResultsPage extends StatefulWidget {
 class OwnedGames {
   final int appid;
   final int playtime_forever;
-  // Add more fields as needed
-
-  OwnedGames({required this.appid, required this.playtime_forever,});
-
-  factory OwnedGames.fromJson(Map<String, dynamic> json) {
-    return OwnedGames(
-      appid: json['appid'],
-      playtime_forever: json['playtime_forever'],
-      // Parse other fields here
-    );
-  }
-}
-
-class OwnedGamesDetail {
-  final String name;
   List<String> genres;
   // Add more fields as needed
 
-  OwnedGamesDetail({required this.name, required this.genres});
+  OwnedGames({required this.appid, required this.playtime_forever, required this.genres});
 
-  factory OwnedGamesDetail.fromJson(Map<String, dynamic> json) {
-    return OwnedGamesDetail(
-      name: json['name'],
-      genres: json['description'],
+  factory OwnedGames.fromJson(Map<String, dynamic> json) {
+ 
+    return OwnedGames(
+      appid: json['appid'],
+      playtime_forever: json['playtime_forever'],
+      genres: [],
       // Parse other fields here
     );
   }
 }
-
-
 
 
 class GameListWidget extends StatelessWidget {
@@ -64,7 +48,12 @@ class GameListWidget extends StatelessWidget {
       itemCount: games.length,
       itemBuilder: (context, index) {
         return ListTile(
-          title: Text('${games[index].appid}')
+          title: Text('${games[index].appid}'),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Genres: ${games[index].genres.join(', ')}')
+            ],),
           // Add more fields here if needed
         );
       },
@@ -80,23 +69,29 @@ class SteamApiService {
     //also add new api https://store.steampowered.com/api/appdetails?appids=appid
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body)['response']['games'];
-      final List<OwnedGames> games = List<OwnedGames>.from(data.map<OwnedGames>((json) => OwnedGames.fromJson(json)));
-       return games.where((game) => game.playtime_forever > 15).toList();
+      final List<OwnedGames> games = data.map((json) => OwnedGames.fromJson(json)).toList();
+
+      final playtimeFilteredGames = games.where((game) => game.playtime_forever > 15).toList();
+      return playtimeFilteredGames;
     } else {
       throw Exception('Failed to load games');
     }
   }
-  Future<List<OwnedGamesDetail>> GetGameGenres( appID) async {
-    final response = await http.get(Uri.parse("https://steamspy.com/api.php?request=appdetails&appid=${appID}"));
+
+  Future<List<String>> getGenres(int appId) async {
+    final response = await http.get(Uri.parse('https://steamspy.com/api.php?request=appdetails&appid=730'));
+
     if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      final List<OwnedGamesDetail> gameDetail = List<OwnedGamesDetail>.from(data.map<OwnedGamesDetail>((json) => OwnedGamesDetail.fromJson(json)));
-       return gameDetail.toList();
+      final Map<String, dynamic> data = json.decode(response.body);
+      if (data.containsKey('genres')) {
+        return List<String>.from(data['genres']);
+      } else {
+        return [];
+      }
     } else {
-      throw Exception('Failed to load game details');
+      throw Exception('Failed to load genres from SteamSpy for app ID: $appId');
     }
   }
-
 }
 
 
@@ -104,7 +99,6 @@ class SteamApiService {
 class _ResultsPageState extends State<ResultsPage> {
 
   List<OwnedGames> _games = [];
-  List<OwnedGamesDetail> _gameDetails = [];
 
   @override
   void initState() {
@@ -117,16 +111,17 @@ class _ResultsPageState extends State<ResultsPage> {
     try {
       final apiService = SteamApiService();
       final games = await apiService.GetOwnedGames(widget.steamID);
+      
+      for(var game in games)
+      {
+        final genres = await apiService.getGenres(game.appid);
+        setState(() {
+          game.genres = genres;
+        });
+      }
       setState(() {
         _games = games;
       });
-      for(var game in games)
-      {
-        final gamesDetail = await apiService.GetGameGenres(game.appid);
-        setState(() {
-          _gameDetails = gamesDetail;
-        });
-      }
     } catch (e) {
       print('Error fetching player summaries: $e');
     }
