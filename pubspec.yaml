@@ -32,6 +32,7 @@ dependencies:
     sdk: flutter
 
 
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
@@ -40,6 +41,7 @@ dependencies:
   go_router: ^13.2.0
   steam_login: ^1.1.0
   flutter_webview_plugin: ^0.4.0
+      
 
 dev_dependencies:
   flutter_test:
@@ -85,6 +87,14 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
+  fonts:
+    - family: JetBrainsMono
+      fonts:
+        - asset: fonts/ttf/JetBrainsMono-Regular.ttf
+        - asset: fonts/ttf/JetBrainsMono-Bold.ttf
+          weight: 100
+        - asset: fonts/ttf/JetBrainsMono-Italic.ttf
+          style: italic
   # fonts:
   #   - family: Schyler
   #     fonts:

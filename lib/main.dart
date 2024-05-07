@@ -32,8 +32,9 @@ class MyApp extends StatelessWidget {
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
         scaffoldBackgroundColor: Color.fromARGB(255, 47, 21, 90),
-        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 186, 186, 187)),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 186, 186, 187),),
         useMaterial3: true,
+        fontFamily: 'JetbrainsMono'
       ),
       home: const LoginPage(),
     );

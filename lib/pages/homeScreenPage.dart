@@ -30,7 +30,7 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                 MaterialPageRoute(builder: (context) => ResultsPage(steamID: widget.steamID,)),
                 );
               },
-              style: TextButton.styleFrom(backgroundColor: const Color.fromARGB(255, 27, 27, 27),shape: CircleBorder(), padding: EdgeInsets.all(100)), child: const Text('Quick Recommender')
+              style: TextButton.styleFrom(backgroundColor: const Color.fromARGB(255, 27, 27, 27),shape: CircleBorder(), padding: EdgeInsets.all(100)), child: const Text('Quick Recommender',)
             ),
           ),
           SizedBox(height: 40,),

@@ -27,12 +27,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  late String SteamID64 = widget.steamID;
+  late String steamID64 = widget.steamID;
 
   late final List<Widget> _pages = [
-    HomeScreenPage(steamID: SteamID64,),
-    RecommenderPage(steamID: SteamID64,),
-    ProfilePage(steamID: SteamID64,),
+    HomeScreenPage(steamID: steamID64,),
+    RecommenderPage(steamID: steamID64,),
+    ProfilePage(steamID: steamID64,),
   ];
 
   @override
