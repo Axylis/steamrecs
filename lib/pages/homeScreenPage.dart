@@ -5,6 +5,7 @@ import 'package:skripsi_finals/homescreen.dart';
 import 'package:skripsi_finals/pages/results.dart';
 import 'package:skripsi_finals/pages/recommender.dart';
 import 'package:skripsi_finals/pages/steam_login.dart';
+import 'package:skripsi_finals/pages/test.dart';
 
 class HomeScreenPage extends StatefulWidget {
   final String steamID;
@@ -42,6 +43,16 @@ class _HomeScreenPageState extends State<HomeScreenPage>
                 );
               },
               style: TextButton.styleFrom(backgroundColor: const Color.fromARGB(255, 27, 27, 27)), child: const Text('Custom Recommendations')
+            ),
+          ),
+          Center(
+            child: TextButton(
+              onPressed:() {
+                Navigator.push(context, 
+                MaterialPageRoute(builder: (context) => TestPage()),
+                );
+              },
+              style: TextButton.styleFrom(backgroundColor: const Color.fromARGB(255, 27, 27, 27)), child: const Text('Test')
             ),
           )
         ],

@@ -78,12 +78,11 @@ class _LoginPageState extends State<LoginPage> {
                   steamID = result;
                 });
                 Navigator.push(context, 
-                MaterialPageRoute(builder: (context) => HomeScreen(title: 'Steamworks', steamID: steamID, index: 0,)),
+                MaterialPageRoute(builder: (context) => HomeScreen(title: 'SteamRecs', steamID: steamID, index: 0,)),
                 );
               },
               style: TextButton.styleFrom(backgroundColor: const Color.fromARGB(255, 27, 27, 27)), child: const Text('Login Page')
             ),
-            Text('SteamID: $steamID'),
           ],
         ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
