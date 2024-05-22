@@ -40,7 +40,7 @@ List<GameGenre> parseGames(String jsonString) {
   return games;
 }
 
-class GameService {
+class GameListService {
   Future<List<GameGenre>> loadGames() async {
     final jsonString = await rootBundle.loadString('assets/steam_games.json');
     return compute(parseGames, jsonString);
@@ -56,7 +56,7 @@ class _TestPageState extends State<TestPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    futureGames = GameService().loadGames();
+    futureGames = GameListService().loadGames();
   }
 
 

@@ -1,14 +1,12 @@
 import 'dart:convert';
-
+import 'dart:core';
+import 'dart:ffi';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
-import 'package:skripsi_finals/pages/homeScreenPage.dart';
-import 'package:skripsi_finals/pages/recommender.dart';
-import 'package:skripsi_finals/homescreen.dart';
 
 class ResultsPage extends StatefulWidget {
   const ResultsPage({super.key, required this.steamID});
@@ -46,13 +44,13 @@ class Game {
 }
 
 class GameGenre {
-  final String genre;
+  final Map<String, int> tags;
 
-  GameGenre({required this.genre});
+  GameGenre({required this.tags});
 
   factory GameGenre.fromJson(Map<String, dynamic> json) {
     return GameGenre(
-      genre: json['genre'] as String,
+      tags: Map<String, int>.from(json['tags'] as Map),
     );
   }
 }
@@ -60,15 +58,17 @@ class GameGenre {
 class JsonGameList{
   final int appid;
   final String name;
-  final String genre;
+  final Map<String, int> tags;
+  final double similarityIndex;
 
-  JsonGameList({required this.appid, required this.name, required this.genre});
+  JsonGameList({required this.appid, required this.name, required this.tags, required this.similarityIndex});
 
   factory JsonGameList.fromJson(Map<String, dynamic> json) {
     return JsonGameList(
       appid: json['appid'] as int,
       name: json['name'] as String,
-      genre: json['genre'] as String,
+      tags: Map<String, int>.from(json['tags'] as Map),
+      similarityIndex: 0.0,
     );
   }
 }
@@ -104,7 +104,6 @@ class SteamSpyService {
 
   Future<GameGenre> fetchGameInfo(int appid) async {
     final response = await http.get(Uri.parse('https://steamspy.com/api.php?request=appdetails&appid=$appid'));
-    //also add new api https://store.steampowered.com/api/appdetails?appids=appid
     if (response.statusCode == 200) {
       return GameGenre.fromJson(jsonDecode(response.body));
 
@@ -122,6 +121,67 @@ class LocalJsonService {
   }
 }
 
+Map<String, int> _buildTagVector(Set<String> tags) {
+  Map<String, int> vector = {};
+  for (var tag in tags) {
+    String cleanTag = tag.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '').toLowerCase();
+    if (cleanTag.isNotEmpty) {
+      vector[cleanTag] = 1;
+    }
+  }
+  return vector;
+}
+
+Future<List<JsonGameList>> _findSimilarGames(Map<String, dynamic> params) async {
+  List<dynamic> jsonGames = params['jsonGames'];
+  Set<String> playerTags = Set<String>.from(params['playerTags']);
+
+  Map<String, int> playerVector = _buildTagVector(playerTags);
+
+  double _cosineSimilarity(Map<String, int> vecA, Map<String, int> vecB) {
+    int dotProduct = 0;
+    double magnitudeA = 0;
+    double magnitudeB = 0;
+
+    for (var key in vecA.keys) {
+      if (vecB.containsKey(key)) {
+        dotProduct += vecA[key]! * vecB[key]!;
+      }
+      magnitudeA += math.pow(vecA[key]!, 2);
+    }
+
+    for (var key in vecB.keys) {
+      magnitudeB += math.pow(vecB[key]!, 2);
+    }
+
+    if (magnitudeA == 0 || magnitudeB == 0) {
+      return 0.0;
+    }
+
+    return dotProduct / (math.sqrt(magnitudeA) * math.sqrt(magnitudeB));
+  }
+
+  List<Map<String, dynamic>> gameSimilarities = [];
+
+  for (var game in jsonGames) {
+    var gameTags = Set<String>.from((game['tags'] as Map).keys);
+    Map<String, int> gameVector = _buildTagVector(gameTags);
+
+    double similarity = _cosineSimilarity(playerVector, gameVector);
+    if (similarity > 0) {
+      gameSimilarities.add({'game': game, 'similarity': similarity});
+    }
+  }
+
+  gameSimilarities.sort((a, b) => b['similarity'].compareTo(a['similarity']));
+
+  return gameSimilarities.take(10).map((item) => JsonGameList(
+    appid: item['game']['appid'],
+    name: item['game']['name'],
+    tags: Map<String, int>.from(item['game']['tags']),
+    similarityIndex: item['similarity'],
+  )).toList();
+}
 
 
 
@@ -131,73 +191,82 @@ class _ResultsPageState extends State<ResultsPage> {
   final steamSpyAPI = SteamSpyService();
   final localJsonService = LocalJsonService();
   Future<OwnedGames>? _ownedGamesFuture;
-  Map<int, Future<GameGenre>> _gameGenreFutures = {};
+  Future<Set<String>>? _playerTagsFuture;
+  Future<List<JsonGameList>>? _similarGamesFuture;
   late Future<List<JsonGameList>> futureJsonGames;
 
-  List<OwnedGames>? _games = [];
   List<String> genre = [];
 
   @override
-  void initState() {
-    // TODO: implement initState
+   void initState() {
     super.initState();
     _ownedGamesFuture = steamAPI.GetOwnedGames(widget.steamID);
     futureJsonGames = localJsonService.loadGames();
+
+    _playerTagsFuture = _ownedGamesFuture!.then((ownedGames) {
+      return _fetchGameTags(ownedGames);
+    });
+
+    _similarGamesFuture = _playerTagsFuture!.then((tags) {
+      return futureJsonGames.then((jsonGames) {
+        var params = {
+          'jsonGames': jsonGames.map((game) => {
+            'appid': game.appid,
+            'name': game.name,
+            'tags': game.tags,
+          }).toList(),
+          'playerTags': tags.toList(),
+        };
+        return compute(_findSimilarGames, params);
+      });
+    });
   }
-  
+
+  Future<Set<String>> _fetchGameTags(OwnedGames ownedGames) async {
+  Set<String> tags = {};
+  for (var game in ownedGames.games) {
+    try {
+      GameGenre gameInfo = await steamSpyAPI.fetchGameInfo(game.appid);
+      tags.addAll(gameInfo.tags.keys);
+    } catch (e) {
+      print('Error fetching tags for game ${game.appid}: $e');
+    }
+  }
+  return tags;
+}
+
+@override
+void dispose() {
+  super.dispose();
+}
+
   @override
-
-
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(onPressed: () {
-          Navigator.pop(context);
-        },
+        leading: BackButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
       ),
-      body: FutureBuilder<OwnedGames>(
-        future: _ownedGamesFuture,
+      body: FutureBuilder<List<JsonGameList>>(
+        future: _similarGamesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.games.isEmpty) {
-            return Center(child: Text('No games found.'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No similar games found.'));
           } else {
             return ListView.builder(
-              itemCount: snapshot.data!.games.length,
+              itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                var game = snapshot.data!.games[index];
-                if (!_gameGenreFutures.containsKey(game.appid)) {
-                  _gameGenreFutures[game.appid] = steamSpyAPI.fetchGameInfo(game.appid);
-                }
-                return FutureBuilder<GameGenre>(
-                  future: _gameGenreFutures[game.appid],
-                  builder: (context, gameInfoSnapshot) {
-                    if (gameInfoSnapshot.connectionState == ConnectionState.waiting) {
-                      return ListTile(
-                        title: Text('Game ID: ${game.appid}'),
-                        subtitle: Text('Loading genre...'),
-                      );
-                    } else if (gameInfoSnapshot.hasError) {
-                      return ListTile(
-                        title: Text('Game ID: ${game.appid}'),
-                        subtitle: Text('Error: ${gameInfoSnapshot.error}'),
-                      );
-                    } else if (!gameInfoSnapshot.hasData) {
-                      return ListTile(
-                        title: Text('Game ID: ${game.appid}'),
-                        subtitle: Text('No genre found'),
-                      );
-                    } else {
-                      return ListTile(
-                        title: Text('Game ID: ${game.appid}'),
-                        subtitle: Text('Genre: ${gameInfoSnapshot.data!.genre}'),
-                      );
-                    }
-                  },
+                var game = snapshot.data![index];
+                return ListTile(
+                  title: Text(game.name, style: TextStyle(color: Colors.white),),
+                  subtitle: Text('Tags: ${game.tags.keys.join(', ')}\nSimilarity: ${game.similarityIndex.toStringAsFixed(10)}', style: TextStyle(color: Colors.red),),
                 );
               },
             );

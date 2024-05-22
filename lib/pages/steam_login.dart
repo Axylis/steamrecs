@@ -16,7 +16,7 @@ class SteamLogin extends StatelessWidget {
       }
     });
 
-    var openId = OpenId.raw('https://recommender/', 'https://recommender/', Map());
+    var openId = OpenId.raw('https://steamrecs/', 'https://steamrecs/', Map());
     return WebviewScaffold(
         url: openId.authUrl().toString(),
         appBar: AppBar(
