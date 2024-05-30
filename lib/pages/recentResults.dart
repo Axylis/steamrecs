@@ -125,12 +125,26 @@ class LocalJsonService {
   }
 }
 
+Set<String> ignoreWords = {'sexualcontent', 'hentai', 'utilities', 'gamedevelopment'};
+
 Map<String, int> _buildTagVector(Set<String> tags) {
   Map<String, int> vector = {};
   for (var tag in tags) {
-    String cleanTag = tag.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '').toLowerCase();
-    if (cleanTag.isNotEmpty) {
-      vector[cleanTag] = 1;
+    // Clean the tag: remove special characters and convert to lowercase
+    String cleanedTag = tag.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '').toLowerCase();
+    
+    // Check if the tag contains any ignore words
+    bool shouldIgnore = false;
+    for (var word in ignoreWords) {
+      if (cleanedTag.contains(word)) {
+        shouldIgnore = true;
+        break;
+      }
+    }
+
+    // Add to vector if it is not to be ignored and is not empty
+    if (!shouldIgnore && cleanedTag.isNotEmpty) {
+      vector[cleanedTag] = 1;
     }
   }
   return vector;
@@ -268,9 +282,33 @@ void dispose() {
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
                 var game = snapshot.data![index];
-                return ListTile(
-                  title: Text(game.name, style: TextStyle(color: Colors.white),),
-                  subtitle: Text('Tags: ${game.tags.keys.join(', ')}\nSimilarity: ${game.similarityIndex.toStringAsFixed(10)}', style: TextStyle(color: Colors.red),),
+                return Card(
+                  elevation: 4,
+                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.all(10),
+                    title: Text(
+                      game.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 5),
+                        Text('Tags: ${game.tags.keys.join(', ')}'),
+                        SizedBox(height: 5),
+                        Text(
+                          'Similarity: ${game.similarityIndex.toStringAsFixed(10)}',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               },
             );

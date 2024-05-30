@@ -45,16 +45,6 @@ class _HomeScreenPageState extends State<HomeScreenPage>
               style: TextButton.styleFrom(backgroundColor: const Color.fromARGB(255, 27, 27, 27)), child: const Text('Custom Recommendations')
             ),
           ),
-          Center(
-            child: TextButton(
-              onPressed:() {
-                Navigator.push(context, 
-                MaterialPageRoute(builder: (context) => TestPage()),
-                );
-              },
-              style: TextButton.styleFrom(backgroundColor: const Color.fromARGB(255, 27, 27, 27)), child: const Text('Test')
-            ),
-          )
         ],
         )      
    );

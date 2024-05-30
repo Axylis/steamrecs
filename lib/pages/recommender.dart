@@ -45,7 +45,11 @@ class _RecommenderPageState extends State<RecommenderPage> {
               },
               style: TextButton.styleFrom(backgroundColor: const Color.fromARGB(255, 27, 27, 27), padding: EdgeInsets.all(20)),  child: const Text('Recently Played Games')
             ),
-          )
+          ),
+          SizedBox(height: 40,),
+          Center(
+            child: Text("It may take a while for the recommendations to load, especially on bigger game libraries", style: TextStyle(color: const Color.fromARGB(239, 255, 255, 255), fontSize: 12), textAlign: TextAlign.center,)
+            )
         ],
         )  
       );
